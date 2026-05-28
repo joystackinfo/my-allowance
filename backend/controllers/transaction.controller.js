@@ -75,6 +75,32 @@ exports.deleteTransaction = async (req, res) => {
     }
 };
 
+// UPDATE transaction
+ exports.updateTransaction = async (req, res) => {
+    try {
+        const transaction = await Transaction.findById(req.params.id);
+
+        if (!transaction) {
+            return res.status(404).json({ message: 'Transaction not found' });
+        }
+
+        if (transaction.user.toString() !== req.user.id) {
+            return res.status(401).json({ message: 'Not authorized' });
+        }
+
+        const updatedTransaction = await Transaction.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+
+        res.json(updatedTransaction);
+
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 // GET spending summary (for reports page)
 exports.getSummary = async (req, res) => {
     try {
