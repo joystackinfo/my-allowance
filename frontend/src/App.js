@@ -1,5 +1,6 @@
 import './App.css';
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // pages
@@ -16,13 +17,14 @@ import Profile from './pages/Profile';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 
-function App() {
-  return (
-    <BrowserRouter>
-      <div className="App">
+const AppContent = () => {
+  const location = useLocation();
+  const hideNavbar = location.pathname === '/';
 
-        <Navbar />
-
+   return (
+     <>
+      {!hideNavbar && <Navbar />}
+   
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
@@ -75,10 +77,19 @@ function App() {
             }
           />
         </Routes>
-
-      </div>
-    </BrowserRouter>
+        </>
+    
   );
-}
+};
+
+function App() {
+  return (
+    <div className="App">
+      <BrowserRouter>
+       <AppContent />
+        </BrowserRouter>
+        </div>
+  );
+};
 
 export default App;
