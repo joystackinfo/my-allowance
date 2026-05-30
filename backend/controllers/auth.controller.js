@@ -90,3 +90,17 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+//update profile
+exports.updateProfile = async (req, res) => {
+    try {
+        const {nickname, weeklyAllowance, brokeAlertThreshold} = req.body;
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { nickname, weeklyAllowance, brokeAlertThreshold },
+            { new: true }
+        ).select('-password'); // exclude password from response
+        res.json({ message: 'Profile updated successfully', user });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
