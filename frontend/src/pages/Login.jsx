@@ -33,6 +33,7 @@ const Login = () => {
 
             // save token to localStorage
             localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user)); // Save user data to localStorage
 
             // update AuthContext
             dispatch({ type: 'LOGIN', payload: data.user });
