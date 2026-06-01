@@ -25,6 +25,12 @@ const userSchema = new mongoose.Schema({
     brokeAlertThreshold: { // if the user doesn't set a broke alert threshold, it defaults to 200
         type: Number,
         default: 200
+    },
+    resetPasswordToken: {
+        type: String
+    },
+    resetPasswordExpires: {
+        type: Date
     }
 }, { timestamps: true });
 
