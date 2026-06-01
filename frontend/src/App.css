@@ -817,3 +817,170 @@ body {
 
 .tx-amount.income { color: var(--primary); }
 .tx-amount.expense { color: var(--danger); }
+/* FILTER TABS */
+.filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.filter-tab {
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: none;
+    font-size: 13px;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.filter-tab.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+/* EMPTY STATE */
+.empty-state {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 14px;
+    padding: 24px 0;
+}
+
+/* GOAL CARDS */
+.goal-card-full {
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+.goal-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.goal-card-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.goal-card-header p {
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.goal-percent {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.goal-progress-wrap {
+    background: var(--primary-light);
+    border-radius: 6px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.goal-progress-bar {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 6px;
+    transition: width 0.5s ease;
+}
+
+.goal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.goal-add-money {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.goal-add-money input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+}
+
+.goal-add-money input:focus { border-color: var(--primary); }
+
+/* PERSONALITY CARD */
+.personality-card {
+    background: var(--primary-light);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+}
+
+.personality-card h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 6px;
+}
+
+.personality-card p {
+    font-size: 14px;
+    color: var(--text-light);
+}
+
+/* CHART */
+.chart-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text);
+}
+
+/* PROFILE */
+.profile-avatar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.avatar-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 24px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-avatar h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.profile-avatar p {
+    font-size: 14px;
+    color: var(--text-light);
+}

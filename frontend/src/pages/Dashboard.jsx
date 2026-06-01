@@ -14,10 +14,14 @@ const Dashboard = () => {
 
     const fetchSummary = async () => {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:5000/api/transactions/weekly', {
+
+        console.log( "TOKEN", token);
+        const res = await fetch('http://localhost:5000/api/transactions/summary ', {
             headers: { Authorization: `Bearer ${token}` }
         });
+        console.log("STATUS", res.status);
         const data = await res.json();
+        console.log("DATA", data);
         setSummary(data);
         setLoading(false);
     };

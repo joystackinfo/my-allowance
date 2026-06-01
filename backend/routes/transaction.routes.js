@@ -16,5 +16,6 @@ router.post('/', protect, addTransaction);
 router.put('/:id', protect, updateTransaction);
 router.delete('/:id', protect, deleteTransaction);
 router.get('/weekly', protect, getWeeklyTransactions);
+router.get('/summary', protect, getWeeklySummary);
 
 module.exports = router;

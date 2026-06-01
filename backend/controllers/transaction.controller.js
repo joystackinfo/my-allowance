@@ -17,7 +17,7 @@ exports.getWeeklyTransactions = async (req, res) => {
         // get start of current week (Monday)
         const startOfWeek = new Date();
         startOfWeek.setHours(0, 0, 0, 0); // set to midnight
-        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1); // adjust to Monday
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() ); // adjust to s
 
         const transactions = await Transaction.find({ // only get transactions for logged in user and from this week
             user: req.user.id,
@@ -102,11 +102,11 @@ exports.deleteTransaction = async (req, res) => {
 };
 
 // GET spending summary (for reports page)
-exports.getSummary = async (req, res) => {
+exports.getWeeklySummary = async (req, res) => {
     try {
         const startOfWeek = new Date();
         startOfWeek.setHours(0, 0, 0, 0);
-        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() );
 
         const transactions = await Transaction.find({
             user: req.user.id,
@@ -133,9 +133,10 @@ exports.getSummary = async (req, res) => {
             }); 
 
         res.json({
-            totalIncome,
-            totalExpense,
+            income: totalIncome,
+            expense: totalExpense,
             balance,
+            transactions,
             byCategory
         });
 

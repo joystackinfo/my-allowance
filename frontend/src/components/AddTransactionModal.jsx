@@ -38,9 +38,13 @@ const AddTransactionModal = ({ type, onClose, onSuccess }) => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ type, amount: Number(amount), category })
+                body: JSON.stringify({ type,
+                     amount: Number(amount),
+                      category ,
+                      description })
             });
 
+            
             const data = await res.json();
 
             if (!res.ok) {
