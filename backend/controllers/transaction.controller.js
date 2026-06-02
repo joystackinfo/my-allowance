@@ -17,8 +17,7 @@ exports.getWeeklyTransactions = async (req, res) => {
         // get start of current week (Monday)
         const startOfWeek = new Date();
         startOfWeek.setHours(0, 0, 0, 0); // set to midnight
-        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() ); // adjust to s
-
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() ); 
         const transactions = await Transaction.find({ // only get transactions for logged in user and from this week
             user: req.user.id,
             date: { $gte: startOfWeek }
