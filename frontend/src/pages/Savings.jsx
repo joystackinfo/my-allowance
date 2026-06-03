@@ -10,11 +10,7 @@ const Savings = () => {
     const [addingTo, setAddingTo] = useState(null);
     const [addAmount, setAddAmount] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
-    const [isSavingGoal, setIsSavingGoal] = useState(false);
-    const [isAddingMoney, setIsAddingMoney] = useState(false);
 
-    const token = localStorage.getItem('token');
 
     const fetchGoals = useCallback(async () => {
         const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goals`, {
