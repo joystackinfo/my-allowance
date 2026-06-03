@@ -10,7 +10,7 @@ const Reports = () => {
     useEffect(() => {
         const fetchSummary = async () => {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/transactions/summary', {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/transactions/summary`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();

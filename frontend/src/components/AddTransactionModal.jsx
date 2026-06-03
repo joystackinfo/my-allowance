@@ -32,7 +32,7 @@ const AddTransactionModal = ({ type, onClose, onSuccess }) => {
         const token = localStorage.getItem('token');
 
         try {
-            const res = await fetch('http://localhost:5000/api/transactions', {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/transactions`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

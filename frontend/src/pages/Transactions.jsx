@@ -13,7 +13,7 @@ const Transactions = () => {
 
     const fetchTransactions = async () => {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:5000/api/transactions', {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/transactions`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -36,7 +36,7 @@ const Transactions = () => {
 
         const token = localStorage.getItem('token');
         try {
-            const res = await fetch(`http://localhost:5000/api/transactions/${id}`, {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/transactions/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });

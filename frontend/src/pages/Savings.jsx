@@ -17,7 +17,7 @@ const Savings = () => {
     const token = localStorage.getItem('token');
 
     const fetchGoals = async () => {
-        const res = await fetch('http://localhost:5000/api/goals', {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goals`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -49,7 +49,7 @@ const Savings = () => {
         }
 
         try {
-            const res = await fetch('http://localhost:5000/api/goals', {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goals`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ name, targetAmount: Number(targetAmount), emoji })
@@ -78,7 +78,7 @@ const Savings = () => {
         setErrorMessage('');
 
         try {
-            const res = await fetch(`http://localhost:5000/api/goals/${goalId}/add-money`, {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goals/${goalId}/add-money`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ amount: Number(addAmount) })
@@ -98,7 +98,7 @@ const Savings = () => {
 
     const handleDelete = async (goalId) => {
         if (!window.confirm('Delete this goal?')) return;
-        await fetch(`http://localhost:5000/api/goals/${goalId}`, {
+        await fetch(`${process.env.REACT_APP_API_URL}/api/goals/${goalId}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` }
         });
