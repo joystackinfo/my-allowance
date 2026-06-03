@@ -6,7 +6,13 @@ const Navbar = () => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-      
+        // remove token from localStorage
+        localStorage.removeItem('token');
+        // update AuthContext
+        dispatch({ type: 'LOGOUT' });
+        // redirect to landing page
+        navigate('/');
+    };
 
     return (
         <nav className="navbar">

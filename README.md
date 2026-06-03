@@ -9,7 +9,7 @@ MyAllowance is a personal allowance tracker built with a React frontend and an E
 - Delete transactions and filter by income/expense
 - Savings goal creation and progress tracking
 - Weekly summary and reports page with spending breakdown
-- Choose whether your week starts on Sunday or Monday in Profile
+- Choose whether week starts on Sunday or Monday in Profile
 - Mobile responsive UI and 404 page support
 - Password reset support via email token
 
