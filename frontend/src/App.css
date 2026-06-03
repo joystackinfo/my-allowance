@@ -69,6 +69,38 @@ body {
 
 .nav-links button:hover { background: rgba(255,255,255,0.25); }
 
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    margin-left: 16px;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    margin-bottom: 5px;
+    background: #fff;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.nav-toggle span:last-child { margin-bottom: 0; }
+
+.nav-toggle.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle.open span:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
 /* BUTTONS */
 .btn-primary {
     display: inline-block;
@@ -808,9 +840,13 @@ body {
 }
 
 @media (max-width: 768px) {
-    .navbar { padding: 14px 20px; }
-    .nav-links { gap: 14px; }
-    .nav-links a { font-size: 12px; }
+    .navbar { padding: 14px 20px; flex-wrap: wrap; row-gap: 10px; }
+    .nav-brand { flex: 1 1 100%; }
+    .nav-toggle { display: inline-flex; }
+    .nav-links { display: none; gap: 10px; flex-direction: column; width: 100%; }
+    .nav-links.open { display: flex; }
+    .nav-links a, .nav-links button { font-size: 14px; padding: 12px 16px; width: 100%; text-align: left; border-radius: 12px; }
+    .nav-links button { justify-content: flex-start; }
     .landing-nav { padding: 14px 20px; }
     .landing-hero { padding: 80px 24px 40px; flex-direction: column; }
     .landing-left h1 { font-size: 30px; }
@@ -835,6 +871,7 @@ body {
     .balance-card h2 { font-size: 28px; }
     .tx-card { padding: 14px 0; }
     .tx-right { width: 100%; flex-wrap: wrap; }
+    .nav-links a, .nav-links button { font-size: 13px; padding: 12px 14px; }
 }
 
 /* TRANSACTION CARD */

@@ -13,8 +13,8 @@ const transporter = nodemailer.createTransport({
     port: 587,
     secure: false,
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        user: process.env.EMAIL_USER?.trim(),
+        pass: process.env.EMAIL_PASS?.trim()
     },
     tls: {
         rejectUnauthorized: false
@@ -157,6 +157,10 @@ exports.forgotPassword = async (req, res) => {
 
         const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            return res.status(500).json({ message: 'Email is not configured. Please check backend environment variables.' });
+        }
+
         await transporter.sendMail({
             from: `MyAllowance <${process.env.EMAIL_USER}>`,
             to: user.email,
@@ -171,7 +175,8 @@ exports.forgotPassword = async (req, res) => {
 
         res.json({ message: 'Reset link sent to your email!' });
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
+        console.error('Forgot password error:', error);
+        res.status(500).json({ message: 'Unable to send reset email. Check email SMTP credentials and configuration.' });
     }
 };
 //RESET PASSWORD
