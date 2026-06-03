@@ -7,6 +7,20 @@ const nodemailer = require('nodemailer');
 // Email validation regex - only accepts @gmail.com or @email.com domains
 const emailRegex = /^[^\s@]+@(gmail\.com|email\.com)$/;
 
+// Create transporter once and reuse it (much faster than creating new one each time)
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    },
+    tls: {
+        rejectUnauthorized: false
+    }
+});
+
 // SIGNUP
 exports.signup = async (req, res) => {
     const { name, nickname, email, password, weeklyAllowance, weekStart } = req.body; 
@@ -142,18 +156,6 @@ exports.forgotPassword = async (req, res) => {
         await user.save();
 
         const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-        const transporter = nodemailer.createTransport({
-            host: "smtp.gmail.com",
-            port: 587,
-            secure: false,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
 
         await transporter.sendMail({
             from: `MyAllowance <${process.env.EMAIL_USER}>`,
