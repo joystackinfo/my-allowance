@@ -1,4 +1,18 @@
 const Transaction = require('../models/transaction.model');
+const User = require('../models/user.model');
+
+const getStartOfWeek = (date, weekStart) => {
+    const normalized = new Date(date);
+    normalized.setHours(0, 0, 0, 0);
+    const day = normalized.getDay();
+    if (weekStart === 'monday') {
+        const offset = (day + 6) % 7; // shift Sunday (0) to 6, Monday (1) to 0
+        normalized.setDate(normalized.getDate() - offset);
+    } else {
+        normalized.setDate(normalized.getDate() - day);
+    }
+    return normalized;
+};
 
 // GET all transactions for logged in user
 exports.getTransactions = async (req, res) => {
@@ -14,10 +28,8 @@ exports.getTransactions = async (req, res) => {
 // GET weekly transactions
 exports.getWeeklyTransactions = async (req, res) => {
     try {
-        // get start of current week (Monday)
-        const startOfWeek = new Date();
-        startOfWeek.setHours(0, 0, 0, 0); // set to midnight
-        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() ); 
+        const user = await User.findById(req.user.id);
+        const startOfWeek = getStartOfWeek(new Date(), user?.weekStart || 'sunday');
         const transactions = await Transaction.find({ // only get transactions for logged in user and from this week
             user: req.user.id,
             date: { $gte: startOfWeek }
@@ -103,9 +115,8 @@ exports.deleteTransaction = async (req, res) => {
 // GET spending summary (for reports page)
 exports.getWeeklySummary = async (req, res) => {
     try {
-        const startOfWeek = new Date();
-        startOfWeek.setHours(0, 0, 0, 0);
-        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() );
+        const user = await User.findById(req.user.id);
+        const startOfWeek = getStartOfWeek(new Date(), user?.weekStart || 'sunday');
 
         const transactions = await Transaction.find({
             user: req.user.id,
@@ -121,7 +132,8 @@ exports.getWeeklySummary = async (req, res) => {
             .filter(t => t.type === 'expense')
             .reduce((sum, t) => sum + t.amount, 0); // sum up all expense transactions to get total expenses for the week
 
-        const balance = totalIncome - totalExpense;
+        const baseAllowance = user?.weeklyAllowance || 0;
+        const balance = baseAllowance + totalIncome - totalExpense;
 
         // group expenses by category
         const byCategory = {};
@@ -135,6 +147,7 @@ exports.getWeeklySummary = async (req, res) => {
             income: totalIncome,
             expense: totalExpense,
             balance,
+            weeklyAllowance: baseAllowance,
             transactions,
             byCategory
         });

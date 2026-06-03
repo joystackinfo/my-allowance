@@ -6,12 +6,16 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 // pages
 import Landing from './pages/Landing';
 import Login from './pages/Login';
+import ForgetPassword from './pages/ForgetPassword';
+import ResetPassword from './pages/ResetPassword';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Reports from './pages/Reports';
 import Savings from './pages/Savings';
 import Profile from './pages/Profile';
+import NotFound from './pages/NotFound';
+
 
 // components
 import Navbar from './components/Navbar';
@@ -30,6 +34,8 @@ const AppContent = () => {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgetPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           {/* Protected routes */}
           <Route
@@ -76,6 +82,7 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         </>
     
@@ -87,9 +94,9 @@ function App() {
     <div className="App">
       <BrowserRouter>
        <AppContent />
-        </BrowserRouter>
-        </div>
+      </BrowserRouter>
+    </div>
   );
-};
+}
 
 export default App;

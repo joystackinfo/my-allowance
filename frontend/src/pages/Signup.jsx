@@ -8,6 +8,7 @@ const Signup = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [weeklyAllowance, setWeeklyAllowance] = useState('');
+    const [weekStart, setWeekStart] = useState('sunday');
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -23,9 +24,8 @@ const Signup = () => {
             const response = await fetch('http://localhost:5000/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, nickname, email, password, weeklyAllowance })
+                body: JSON.stringify({ name, nickname, email, password, weeklyAllowance, weekStart })
             });
-
             const data = await response.json();
 
             if (!response.ok) {
@@ -97,7 +97,7 @@ const Signup = () => {
                             required
                         />
                     </div>
-                    <div className="form-field">
+                            <div className="form-field">
                         <label>Weekly Allowance (₦)</label>
                         <input
                             type="number"
@@ -106,6 +106,13 @@ const Signup = () => {
                             placeholder="e.g. 2000"
                             required
                         />
+                    </div>
+                    <div className="form-field">
+                        <label>Week starts on</label>
+                        <select value={weekStart} onChange={(e) => setWeekStart(e.target.value)}>
+                            <option value="sunday">Sunday</option>
+                            <option value="monday">Monday</option>
+                        </select>
                     </div>
 
                     {error && <p className="error-msg">{error}</p>}

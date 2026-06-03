@@ -9,6 +9,10 @@ const Savings = () => {
     const [emoji, setEmoji] = useState('🎯');
     const [addingTo, setAddingTo] = useState(null);
     const [addAmount, setAddAmount] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isSavingGoal, setIsSavingGoal] = useState(false);
+    const [isAddingMoney, setIsAddingMoney] = useState(false);
 
     const token = localStorage.getItem('token');
 
@@ -23,27 +27,73 @@ const Savings = () => {
 
     useEffect(() => { fetchGoals(); }, []);
 
+    useEffect(() => {
+        if (!successMessage && !errorMessage) return;
+        const timeout = setTimeout(() => {
+            setSuccessMessage('');
+            setErrorMessage('');
+        }, 6000);
+        return () => clearTimeout(timeout);
+    }, [successMessage, errorMessage]);
+
     const handleAddGoal = async (e) => {
         e.preventDefault();
-        await fetch('http://localhost:5000/api/goals', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ name, targetAmount: Number(targetAmount), emoji })
-        });
-        setShowForm(false);
-        setName(''); setTargetAmount(''); setEmoji('🎯');
-        fetchGoals();
+        setIsSavingGoal(true);
+        setSuccessMessage('');
+        setErrorMessage('');
+
+        if (!name.trim() || Number(targetAmount) <= 0) {
+            setErrorMessage('Enter a valid goal name and target amount.');
+            setIsSavingGoal(false);
+            return;
+        }
+
+        try {
+            const res = await fetch('http://localhost:5000/api/goals', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ name, targetAmount: Number(targetAmount), emoji })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Could not save goal');
+            setSuccessMessage('Goal saved successfully!');
+            setShowForm(false);
+            setName(''); setTargetAmount(''); setEmoji('🎯');
+            fetchGoals();
+        } catch (err) {
+            setErrorMessage(err.message || 'Failed to save goal.');
+        } finally {
+            setIsSavingGoal(false);
+        }
     };
 
     const handleAddMoney = async (goalId) => {
-        await fetch(`http://localhost:5000/api/goals/${goalId}/add-money`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ amount: Number(addAmount) })
-        });
-        setAddingTo(null);
-        setAddAmount('');
-        fetchGoals();
+        if (Number(addAmount) <= 0) {
+            setErrorMessage('Enter an amount greater than zero.');
+            return;
+        }
+
+        setIsAddingMoney(true);
+        setSuccessMessage('');
+        setErrorMessage('');
+
+        try {
+            const res = await fetch(`http://localhost:5000/api/goals/${goalId}/add-money`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ amount: Number(addAmount) })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Could not add money');
+            setSuccessMessage(`₦${Number(addAmount).toLocaleString()} added to your goal!`);
+            setAddingTo(null);
+            setAddAmount('');
+            fetchGoals();
+        } catch (err) {
+            setErrorMessage(err.message || 'Failed to add amount.');
+        } finally {
+            setIsAddingMoney(false);
+        }
     };
 
     const handleDelete = async (goalId) => {
@@ -65,6 +115,9 @@ const Savings = () => {
                 style={{ marginBottom: '24px' }}>
                 {showForm ? 'Cancel' : '+ New Goal'}
             </button>
+
+            {successMessage && <p className="success-msg">✅ {successMessage}</p>}
+            {errorMessage && <p className="error-msg">{errorMessage}</p>}
 
             {showForm && (
                 <div className="card" style={{ marginBottom: '24px' }}>
@@ -97,6 +150,9 @@ const Savings = () => {
             ) : (
                 goals.map(goal => {
                     const percent = Math.min(Math.round((goal.savedAmount / goal.targetAmount) * 100), 100);
+                    const remaining = Math.max(goal.targetAmount - goal.savedAmount, 0);
+                    const completed = percent >= 100;
+
                     return (
                         <div key={goal._id} className="goal-card-full">
                             <div className="goal-card-header">
@@ -104,17 +160,28 @@ const Savings = () => {
                                     <h3>{goal.emoji} {goal.name}</h3>
                                     <p>₦{goal.savedAmount?.toLocaleString()} saved of ₦{goal.targetAmount?.toLocaleString()}</p>
                                 </div>
-                                <span className="goal-percent">{percent}%</span>
+                                <span className={`goal-percent ${completed ? 'goal-complete-badge' : ''}`}>{completed ? 'Complete' : `${percent}%`}</span>
                             </div>
                             <div className="goal-progress-wrap">
                                 <div className="goal-progress-bar" style={{ width: `${percent}%` }}></div>
                             </div>
-                            {addingTo === goal._id ? (
+                            <div className="goal-progress-meta">
+                                <span>{completed ? 'Goal reached 🎉' : `₦${remaining.toLocaleString()} remaining`}</span>
+                                <span>{percent}% complete</span>
+                            </div>
+
+                            {completed ? (
+                                <div className="goal-actions">
+                                    <button className="btn-outline" onClick={() => handleDelete(goal._id)}>Remove Goal</button>
+                                </div>
+                            ) : addingTo === goal._id ? (
                                 <div className="goal-add-money">
                                     <input type="number" value={addAmount}
                                         onChange={e => setAddAmount(e.target.value)}
                                         placeholder="Amount to add (₦)" />
-                                    <button className="btn-primary" onClick={() => handleAddMoney(goal._id)}>Add</button>
+                                    <button className="btn-primary" onClick={() => handleAddMoney(goal._id)} disabled={isAddingMoney}>
+                                        {isAddingMoney ? 'Saving...' : 'Add'}
+                                    </button>
                                     <button className="btn-outline" onClick={() => setAddingTo(null)}>Cancel</button>
                                 </div>
                             ) : (

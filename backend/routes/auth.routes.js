@@ -16,6 +16,6 @@ router.post('/login', login);
 router.post('/forgot-password', forgotPassword);
 
 // POST /api/auth/reset-password
-router.put('/reset-password', resetPassword);
+router.put('/reset-password/:token', resetPassword);
 
 module.exports = router;

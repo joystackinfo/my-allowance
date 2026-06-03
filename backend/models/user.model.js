@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    weekStart: {
+        type: String,
+        enum: ['sunday', 'monday'],
+        default: 'sunday'
+    },
     brokeAlertThreshold: { // if the user doesn't set a broke alert threshold, it defaults to 200
         type: Number,
         default: 200
@@ -29,9 +34,9 @@ const userSchema = new mongoose.Schema({
     resetPasswordToken: {
         type: String
     },
-    resetPasswordExpires: {
+    resetPasswordExpires: { 
         type: Date
-    }
+     }
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);

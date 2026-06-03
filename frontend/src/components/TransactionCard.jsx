@@ -1,5 +1,5 @@
 // TransactionCard.jsx
-const TransactionCard = ({ transaction }) => {
+const TransactionCard = ({ transaction, onDelete, deleting }) => {
     const icons = {
         'Food & Snacks': '🍔',
         'Transport': '🚌',
@@ -22,15 +22,27 @@ const TransactionCard = ({ transaction }) => {
                 <div>
                     <p className="tx-name">{transaction.category}</p>
                     <p className="tx-date">
-                        {new Date(transaction.date).toLocaleDateString('en-NG', { // Format date as "Mon, Jan 1"
+                        {new Date(transaction.date).toLocaleDateString('en-NG', {
                             weekday: 'short', month: 'short', day: 'numeric'
                         })}
                     </p>
                 </div>
             </div>
-            <span className={`tx-amount ${transaction.type}`}> 
-                {transaction.type === 'income' ? '+' : '-'}₦{transaction.amount?.toLocaleString()}  
-            </span> 
+            <div className="tx-right">
+                <span className={`tx-amount ${transaction.type}`}>
+                    {transaction.type === 'income' ? '+' : '-'}₦{transaction.amount?.toLocaleString()}
+                </span>
+                {onDelete && (
+                    <button
+                        type="button"
+                        className="tx-delete-btn"
+                        onClick={() => onDelete(transaction._id)}
+                        disabled={deleting}
+                    >
+                        {deleting ? 'Deleting...' : 'Delete'}
+                    </button>
+                )}
+            </div>
         </div>
     );
 };

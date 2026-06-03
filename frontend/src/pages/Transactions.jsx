@@ -8,6 +8,8 @@ const Transactions = () => {
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState('income');
     const [filter, setFilter] = useState('all');
+    const [deleteError, setDeleteError] = useState('');
+    const [deletingId, setDeletingId] = useState(null);
 
     const fetchTransactions = async () => {
         const token = localStorage.getItem('token');
@@ -26,7 +28,42 @@ const Transactions = () => {
         return tx.type === filter;
     });
 
-    if (loading) return <div className="page"><p>Loading...</p></div>;
+    const handleDelete = async (id) => {
+        const shouldDelete = window.confirm('Delete this transaction?');
+        if (!shouldDelete) return;
+        setDeletingId(id);
+        setDeleteError('');
+
+        const token = localStorage.getItem('token');
+        try {
+            const res = await fetch(`http://localhost:5000/api/transactions/${id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setDeleteError(data.message || 'Delete failed');
+            } else {
+                setTransactions(prev => prev.filter(tx => tx._id !== id));
+            }
+        } catch (err) {
+            setDeleteError('Something went wrong while deleting.');
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
+    if (loading) return (
+        <div className="page">
+            <div className="loader-wrapper">
+                <div className="loader">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+        </div>
+    );
 
     return (
         <div className="page">
@@ -47,11 +84,20 @@ const Transactions = () => {
                 <button className={filter === 'expense' ? 'filter-tab active' : 'filter-tab'} onClick={() => setFilter('expense')}>Expenses</button>
             </div>
 
+            {deleteError && <p className="error-msg">{deleteError}</p>}
+
             <div className="card">
                 {filtered.length === 0 ? (
                     <p className="empty-state">No transactions yet. Add your first one! 💰</p>
                 ) : (
-                    filtered.map(tx => <TransactionCard key={tx._id} transaction={tx} />)
+                    filtered.map(tx => (
+                        <TransactionCard
+                            key={tx._id}
+                            transaction={tx}
+                            onDelete={handleDelete}
+                            deleting={deletingId === tx._id}
+                        />
+                    ))
                 )}
             </div>
 

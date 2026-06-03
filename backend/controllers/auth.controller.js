@@ -4,10 +4,18 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
+// Email validation regex - only accepts @gmail.com or @email.com domains
+const emailRegex = /^[^\s@]+@(gmail\.com|email\.com)$/;
+
 // SIGNUP
 exports.signup = async (req, res) => {
-    const { name, nickname, email, password, weeklyAllowance } = req.body; 
+    const { name, nickname, email, password, weeklyAllowance, weekStart } = req.body; 
     try {
+        // Validate email format before checking database
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Please enter a valid email address' });
+        }
+
         // check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -24,7 +32,8 @@ exports.signup = async (req, res) => {
             nickname,
             email,
             password: hashedPassword,
-            weeklyAllowance
+            weeklyAllowance,
+            weekStart
         });
 
         // create JWT token
@@ -42,7 +51,8 @@ exports.signup = async (req, res) => {
                 name: user.name,
                 nickname: user.nickname,
                 email: user.email,
-                weeklyAllowance: user.weeklyAllowance
+                weeklyAllowance: user.weeklyAllowance,
+                weekStart: user.weekStart
             }
         });
 
@@ -56,6 +66,11 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        // Validate email format before querying database
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Please enter a valid email address' });
+        }
+
         // find user by email
         const user = await User.findOne({ email });
         if (!user) {
@@ -84,7 +99,8 @@ exports.login = async (req, res) => {
                 nickname: user.nickname,
                 email: user.email,
                 weeklyAllowance: user.weeklyAllowance,
-                brokeAlertThreshold: user.brokeAlertThreshold
+                brokeAlertThreshold: user.brokeAlertThreshold,
+                weekStart: user.weekStart
             }
         });
 
@@ -95,10 +111,10 @@ exports.login = async (req, res) => {
 //update profile
 exports.updateProfile = async (req, res) => {
     try {
-        const {nickname, weeklyAllowance, brokeAlertThreshold} = req.body;
+        const { nickname, weeklyAllowance, brokeAlertThreshold, weekStart } = req.body;
         const user = await User.findByIdAndUpdate(
             req.user.id,
-            { nickname, weeklyAllowance, brokeAlertThreshold },
+            { nickname, weeklyAllowance, brokeAlertThreshold, weekStart },
             { new: true }
         ).select('-password'); // exclude password from response
         res.json({ message: 'Profile updated successfully', user });
@@ -108,48 +124,75 @@ exports.updateProfile = async (req, res) => {
 };
 
 //FORGOT PASSWORD
-exports.forgotPassword = async (req, res) => { // Implement forgot password logic here
+exports.forgotPassword = async (req, res) => {
     try {
-        const user = await User.findOne({ email: req.body.email }); // Find user by email
-        if (!user) {
-            return res.status(404)
-            .json({ message: 'No account with that email' });
+        // Validate email format
+        if (!emailRegex.test(req.body.email)) {
+            return res.status(400).json({ message: 'Please enter a valid email address' });
         }
-        // Generate reset token
-        const resetToken = crypto.randomBytes(20).toString('hex'); // Generate reset token by creating random bytes and converting to hex string
 
-        //savee hashed token to db
-        user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex'); // Hash the reset token and save to user document
-        user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // Set token expiration time (15 minutes)
-        await user.save(); // Save the user document with the reset token
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return res.status(404).json({ message: 'No account with that email' });
+        }
 
-        //create reset URL
-        const resetUrl= `${process.env.FRONTEND_URL}/reset-password/${resetToken}`; // Create reset URL to be sent in email
+        const resetToken = crypto.randomBytes(20).toString('hex');
+        user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+        user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
+        await user.save();
 
-        // send email
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
         const transporter = nodemailer.createTransport({
-            service: 'Gmail',
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
+            },
+            tls: {
+                rejectUnauthorized: false
             }
         });
 
         await transporter.sendMail({
-            from: process.env.EMAIL_USER,
+            from: `MyAllowance <${process.env.EMAIL_USER}>`,
             to: user.email,
-            subject: 'MyAllowance - Reset your password',
+            subject: 'MyAllowance — Reset your password',
             html: `
                 <h2>Reset your password</h2>
-                <p>You requested a password reset. Click the link below:</p>
+                <p>Click the link below:</p>
                 <a href="${resetUrl}">Reset Password</a>
-                <p>This link will expire in 15 minutes.</p>
-                <p>If you did not request this, please ignore this email.</p>
-                `
+                <p>Expires in 15 minutes.</p>
+            `
         });
 
-        res.json({ message: 'Reset link sent to your email' });
+        res.json({ message: 'Reset link sent to your email!' });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
-    };
-}
+    }
+};
+//RESET PASSWORD
+exports.resetPassword = async (req, res) => {
+    try {
+        const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+        const user = await User.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired token' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(req.body.password, salt);
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        res.json({ message: 'Password reset successful' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
