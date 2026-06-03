@@ -10,6 +10,8 @@ const Transactions = () => {
     const [filter, setFilter] = useState('all');
     const [deleteError, setDeleteError] = useState('');
     const [deletingId, setDeletingId] = useState(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
     const fetchTransactions = useCallback(async () => {
         const token = localStorage.getItem('token');
@@ -29,8 +31,13 @@ const Transactions = () => {
     });
 
     const handleDelete = async (id) => {
-        const shouldDelete = window.confirm('Delete this transaction?');
-        if (!shouldDelete) return;
+        setConfirmDeleteId(id);
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = async () => {
+        const id = confirmDeleteId;
+        setShowDeleteConfirm(false);
         setDeletingId(id);
         setDeleteError('');
 
@@ -50,6 +57,7 @@ const Transactions = () => {
             setDeleteError('Something went wrong while deleting.');
         } finally {
             setDeletingId(null);
+            setConfirmDeleteId(null);
         }
     };
 
@@ -107,6 +115,25 @@ const Transactions = () => {
                     onClose={() => setShowModal(false)}
                     onSuccess={() => { setShowModal(false); fetchTransactions(); }}
                 />
+            )}
+
+            {showDeleteConfirm && (
+                <div className="modal-overlay" onClick={() => setShowDeleteConfirm(false)}>
+                    <div className="modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Delete Transaction?</h3>
+                            <button onClick={() => setShowDeleteConfirm(false)}>✕</button>
+                        </div>
+                        <p style={{ marginBottom: '24px' }}>Are you sure you want to delete this transaction? This action cannot be undone.</p>
+                        {deleteError && <p className="error-msg" style={{ marginBottom: '16px' }}>{deleteError}</p>}
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                            <button className="btn-outline" onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
+                            <button className="btn-danger" onClick={confirmDelete} disabled={deletingId === confirmDeleteId}>
+                                {deletingId === confirmDeleteId ? 'Deleting...' : 'Delete'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
