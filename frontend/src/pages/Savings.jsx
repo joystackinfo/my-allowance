@@ -16,18 +16,18 @@ const Savings = () => {
 
     const token = localStorage.getItem('token');
 
-    const fetchGoals = async () => {
+    const fetchGoals = useCallback(async () => {
         const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goals`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
         setGoals(data);
         setLoading(false);
-    };
+    }, [token]);
 
     useEffect(() => {
         fetchGoals();
-    }, [token]);
+    }, [fetchGoals]);
 
     useEffect(() => {
         if (!successMessage && !errorMessage) return;
