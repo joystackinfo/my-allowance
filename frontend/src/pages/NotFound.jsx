@@ -5,8 +5,9 @@ const NotFound = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        setTimeout(() => navigate('/'), 3000);
-    }, []);
+        const timeout = setTimeout(() => navigate('/'), 3000);
+        return () => clearTimeout(timeout);
+    }, [navigate]);
 
     return (
         <div className="auth-page">

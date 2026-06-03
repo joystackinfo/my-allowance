@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AddTransactionModal from '../components/AddTransactionModal';
 import TransactionCard from '../components/TransactionCard';
 
@@ -11,7 +11,7 @@ const Transactions = () => {
     const [deleteError, setDeleteError] = useState('');
     const [deletingId, setDeletingId] = useState(null);
 
-    const fetchTransactions = async () => {
+    const fetchTransactions = useCallback(async () => {
         const token = localStorage.getItem('token');
         const res = await fetch(`${process.env.REACT_APP_API_URL}/api/transactions`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -19,9 +19,9 @@ const Transactions = () => {
         const data = await res.json();
         setTransactions(data);
         setLoading(false);
-    };
+    }, []);
 
-    useEffect(() => { fetchTransactions(); }, []);
+    useEffect(() => { fetchTransactions(); }, [fetchTransactions]);
 
     const filtered = transactions.filter(tx => {
         if (filter === 'all') return true;

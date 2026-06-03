@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import BrokeAlert from '../components/BrokeAlert';
 import TransactionCard from '../components/TransactionCard';
@@ -13,6 +13,16 @@ const Dashboard = () => {
     const [modalType, setModalType] = useState('income');
     const [showTour, setShowTour] = useState(false);
     const [tourStep, setTourStep] = useState(0);
+
+    const fetchSummary = useCallback(async () => {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/transactions/summary`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        setSummary(data);
+        setLoading(false);
+    }, []);
 
     const tourSteps = [
         {
@@ -31,23 +41,24 @@ const Dashboard = () => {
 
     const tourKey = user ? `tourCompleted_${user.id}` : 'tourCompleted';
 
-    const fetchSummary = async () => {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/transactions/summary`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
-        setSummary(data);
-        setLoading(false);
-    };
-
     useEffect(() => {
         if (!user) return;
+
+        const fetchSummary = async () => {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/transactions/summary`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const data = await res.json();
+            setSummary(data);
+            setLoading(false);
+        };
+
         fetchSummary();
         if (!localStorage.getItem(tourKey)) {
             setShowTour(true);
         }
-    }, [user]);
+    }, [user, tourKey]);
 
     const openModal = (type) => {
         setModalType(type);

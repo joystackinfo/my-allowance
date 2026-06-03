@@ -20,7 +20,6 @@ const INCOME_SOURCES = [
 const AddTransactionModal = ({ type, onClose, onSuccess }) => {
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('');
-    const [description, setDescription] = useState('');
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -38,10 +37,11 @@ const AddTransactionModal = ({ type, onClose, onSuccess }) => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ type,
-                     amount: Number(amount),
-                      category ,
-                      description })
+                body: JSON.stringify({
+                    type,
+                    amount: Number(amount),
+                    category
+                })
             });
 
             

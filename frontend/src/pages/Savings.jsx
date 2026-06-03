@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const Savings = () => {
     const [goals, setGoals] = useState([]);
@@ -16,16 +16,17 @@ const Savings = () => {
 
     const token = localStorage.getItem('token');
 
-    const fetchGoals = async () => {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goals`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
-        setGoals(data);
-        setLoading(false);
-    };
-
-    useEffect(() => { fetchGoals(); }, []);
+    useEffect(() => {
+        const fetchGoals = async () => {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goals`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const data = await res.json();
+            setGoals(data);
+            setLoading(false);
+        };
+        fetchGoals();
+    }, [token]);
 
     useEffect(() => {
         if (!successMessage && !errorMessage) return;
@@ -138,7 +139,9 @@ const Savings = () => {
                             <input value={emoji} onChange={e => setEmoji(e.target.value)}
                                 placeholder="🎯" />
                         </div>
-                        <button className="btn-primary" type="submit">Save Goal</button>
+                        <button className="btn-primary" type="submit" disabled={isSavingGoal}>
+                            {isSavingGoal ? 'Saving...' : 'Save Goal'}
+                        </button>
                     </form>
                 </div>
             )}
