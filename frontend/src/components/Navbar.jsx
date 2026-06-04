@@ -17,40 +17,54 @@ const Navbar = () => {
     const closeMenu = () => setMenuOpen(false);
 
     return (
-        <nav className="navbar">
-            <Link to={user ? '/dashboard' : '/'} className="nav-brand" onClick={closeMenu}>
-                MyAllowance
-            </Link>
+        <>
+            <nav className="navbar">
+                <Link to={user ? '/dashboard' : '/'} className="nav-brand" onClick={closeMenu}>
+                    MyAllowance
+                </Link>
 
-            <button
-                className={`nav-toggle${menuOpen ? ' open' : ''}`}
-                onClick={() => setMenuOpen((open) => !open)}
-                aria-expanded={menuOpen}
-                aria-label="Toggle navigation"
-            >
-                <span />
-                <span />
-                <span />
-            </button>
+                <button
+                    className={`nav-toggle${menuOpen ? ' open' : ''}`}
+                    onClick={() => setMenuOpen(o => !o)}
+                    aria-label="Toggle navigation"
+                >
+                    <span />
+                    <span />
+                    <span />
+                </button>
+            </nav>
 
-            <div className={`nav-links${menuOpen ? ' open' : ''}`}>
-                {user ? (
-                    <>
-                        <Link to="/dashboard" onClick={closeMenu}>Home</Link>
-                        <Link to="/transactions" onClick={closeMenu}>Transactions</Link>
-                        <Link to="/reports" onClick={closeMenu}>Reports</Link>
-                        <Link to="/savings" onClick={closeMenu}>Savings</Link>
-                        <Link to="/profile" onClick={closeMenu}>Profile</Link>
-                        <button onClick={handleLogout}>Logout</button>
-                    </>
-                ) : (
-                    <>
-                        <Link to="/login" onClick={closeMenu}>Log in</Link>
-                        <Link to="/signup" onClick={closeMenu}>Sign up</Link>
-                    </>
-                )}
+            {/* Overlay */}
+            {menuOpen && (
+                <div className="drawer-overlay" onClick={closeMenu} />
+            )}
+
+            {/* Drawer */}
+            <div className={`nav-drawer${menuOpen ? ' open' : ''}`}>
+                <div className="drawer-header">
+                    <span className="drawer-brand">MyAllowance</span>
+                    <button className="drawer-close" onClick={closeMenu}>✕</button>
+                </div>
+
+                <div className="drawer-links">
+                    {user ? (
+                        <>
+                            <Link to="/dashboard" onClick={closeMenu}>🏠 Home</Link>
+                            <Link to="/transactions" onClick={closeMenu}>💸 Transactions</Link>
+                            <Link to="/reports" onClick={closeMenu}>📊 Reports</Link>
+                            <Link to="/savings" onClick={closeMenu}>🎯 Savings</Link>
+                            <Link to="/profile" onClick={closeMenu}>👤 Profile</Link>
+                            <button className="drawer-logout" onClick={handleLogout}>Logout</button>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/login" onClick={closeMenu}>Log in</Link>
+                            <Link to="/signup" onClick={closeMenu}>Sign up</Link>
+                        </>
+                    )}
+                </div>
             </div>
-        </nav>
+        </>
     );
 };
 
