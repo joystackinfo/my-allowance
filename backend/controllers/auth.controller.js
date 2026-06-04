@@ -7,7 +7,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 
 // Email validation regex - only accepts @gmail.com or @email.com domains
-const emailRegex = /^[^\s@]+@(gmail\.com|email\.com)$/;
+const emailRegex = /^[^\s@]+@(gmail\.com|email\.com)$/i;
 
 // SIGNUP
 exports.signup = async (req, res) => {
